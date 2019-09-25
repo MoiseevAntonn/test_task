@@ -1,2 +1,8 @@
 01/src/client/node_modules/
 01/src/server/node_modules/
+01/src/public/build/bundle.js
+01/src/public/build/bundle.js.map
+02/src/client/node_modules/
+02/src/server/node_modules/
+02/src/public/build/bundle.js
+02/src/public/build/bundle.js.map
