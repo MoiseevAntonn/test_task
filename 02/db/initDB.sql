@@ -3,7 +3,7 @@ CREATE DATABSE resume;
 DROP TABLE IF EXSIST users;
 DROP TABLE IF EXSIST links;
 
-create user dbuser with encrypted password 'qwerty';
+
 CREATE USER dbuser;
 
 CREATE TABLE users (

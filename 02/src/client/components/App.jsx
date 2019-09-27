@@ -10,18 +10,18 @@ import style from "./App.css";
 class App extends React.Component{
   constructor(props){
       super(props);
-      this.state = {user : null};
+      this.state = {data : null};
   }
 
   render(){
     return (
       <div>
         <Switch>
-          <Route path="/login" render={props => <LoginForm {...props} user={this.state.user} setUpUser={(user) => this.setState({user : user})}/>}/>
-          <Route path="/register" render={props => <RegForm {...props} user={this.state.user}/>}/>
-          <Route path="/profile" render={props => <Profile {...props} user={this.state.user}/>}/>
+          <Route path="/login" render={props => <LoginForm {...props} data={this.state.data} setUpUserData={(data) => this.setState({data : data})}/>}/>
+          <Route path="/register" render={props => <RegForm {...props} data={this.state.data}/>}/>
+          <Route path="/profile" render={props => <Profile {...props} data={this.state.data}/>}/>
         </Switch>
-        {this.state.user === null ? <Redirect to="/login"/> : <Redirect to="/profile"/>}
+        {(!this.state.user) ? <Redirect to="/login"/> : <Redirect to="/profile"/>}
       </div>
 
     )

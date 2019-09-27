@@ -9,7 +9,7 @@ class RegForm extends React.Component{
   }
 
   render(){
-    if (this.props.user) {
+    if (this.props.data) {
         return <Redirect to='/profile' />;
     }
 

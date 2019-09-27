@@ -13,17 +13,18 @@ app.use( bodyParser.json() );
 app.use( express.static(path.resolve(__dirname,"../public")) );
 
 
-app.get(/\short.*$/,async function(req,res){
-  const cookie = request.getHeader("Cookie");
-  const key = cookie.split("=")[1];
+app.get(/short.*$/,async function(req,res){
+  // const cookie = response.getHeader("Cookie");
+  // const key = cookie.split("=")[1];
 
-  var userSession = sessions.find(session => session.key = key);
+  //var userSession = sessions.find(session => session.key = key);
 
-  if (!userSession){
-    res.status(401).send();
-    return;
-  };
+  // if (!userSession){
+  //   res.status(401).send();
+  //   return;
+  // };
 
+  //var linkMap = await db.getLink(userSession.id);
   var linkMap = await db.getLink(userSession.id);
 
   res.redirect(linkMap.shortLink);
@@ -38,7 +39,7 @@ app.post("/register",async function(req,res){
     return;
   };
 
-  res.redirect("/login");
+  res.redirect("/");
 
 });
 
@@ -56,6 +57,11 @@ app.post("/login",async function(req,res){
     return ;
   }
 
+  if (!user){
+    res.status().send("not such user");
+    return;
+  };
+
   if (password !== user.password){
     res.status().send("wrong password");
     return;
@@ -64,14 +70,25 @@ app.post("/login",async function(req,res){
 
   if (sessions.find(session => session.name = name) === undefined){
     var sessionKey = generateSessionKey();
-    session.push({
+    sessions.push({
       id : user.id,
       key : sessionKey
     });
 
     res.setHeader("Set-Cookie",[`key=${sessionKey}`]);
-    res.status(200).send(user);
+  };
+
+  try {
+    var links = await db.getLinks(user.id)
+  } catch (e) {
+    res.status(500).send();
+    return ;
   }
+
+  res.status(200).send({
+    user:user,
+    links:links
+  });
 
 });
 
@@ -92,11 +109,12 @@ app.post("/logout",async function(req,res){
 });
 
 app.post("/createLink",async function(req,res){
-  const {longLink} = req.body;
+  const {longLink,id} = req.body;
   const shortLink = generateShortLink();
   const linkMap = {
     longLink,
     shortLink,
+    id,
     value : 0
   };
   try {
@@ -106,6 +124,25 @@ app.post("/createLink",async function(req,res){
     return
   }
   res.send(linkMap);
+});
+
+app.get("/profile",async function(req,res){
+  const cookie = res.getHeader("Cookie");
+
+  if (!cookie){
+    res.status(400).send();
+    return;
+  }
+  const key = cookie.split("=")[1];
+
+  if (cookie && key){
+    var userSession = sessions.find(session => session.key === key);
+    if (userSession){
+      var user = db.getUserById(userSession.id);
+      res.send(user);
+    }
+  }
+
 })
 
 app.listen(port,()=>{

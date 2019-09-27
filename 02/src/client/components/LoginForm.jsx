@@ -9,7 +9,7 @@ class LoginForm extends React.Component{
   }
 
   render(){
-    if (this.props.user) {
+    if (this.props.data) {
         return <Redirect to='/profile' />;
     }
 
@@ -57,10 +57,10 @@ class LoginForm extends React.Component{
       password  :this.state.password
     })
     .then(response => {
-      if (response.status === 200) return response.json()
+      if (response.status === 200) return response.data
     })
-    .then(user => {
-      this.props.setUpUser(user);
+    .then(data => {
+      this.props.setUpUserData(data);
     })
     .catch(err => {console.log(err)})
   }
