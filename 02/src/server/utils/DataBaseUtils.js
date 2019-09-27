@@ -1,6 +1,10 @@
 const { Pool } = require("pg");
 
-const pool = new Pool();
+const pool = new Pool({
+  user : "dbuser",
+  database : "resume",
+  password : "qwerty"
+});
 
 pool.on('error',(err,cilent) => {
 

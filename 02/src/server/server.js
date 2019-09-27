@@ -3,6 +3,7 @@ const db = require("./utils/DataBaseUtils");
 const bodyParser = require("body-parser");
 const path = require("path");
 const passport = require("passport");
+const {port} = require("../etc/config.json");
 
 const app = express();
 
@@ -29,7 +30,7 @@ app.get(/\short.*$/,async function(req,res){
 })
 
 app.post("/register",async function(req,res){
-  const user = req.body.user;
+  const user = req.body;
   try {
     await db.createUser(user);
   } catch (e) {
@@ -42,14 +43,14 @@ app.post("/register",async function(req,res){
 });
 
 app.post("/login",async function(req,res){
-  const {name,password} = req.body.user;
+  const {name,password} = req.body;
   if (!name || !password){
     res.status(400).send();
     return;
   };
 
   try {
-    var user = db.getUserByName(name)
+    var user = await db.getUserByName(name)
   } catch (e) {
     res.status(500).send();
     return ;
@@ -69,7 +70,7 @@ app.post("/login",async function(req,res){
     });
 
     res.setHeader("Set-Cookie",[`key=${sessionKey}`]);
-    res.status(200).send();
+    res.status(200).send(user);
   }
 
 });
@@ -107,7 +108,9 @@ app.post("/createLink",async function(req,res){
   res.send(linkMap);
 })
 
-app.listen(3000);
+app.listen(port,()=>{
+  console.log(`server is runnig on port ${port}`);
+});
 
 
 function generateShortLink(){
