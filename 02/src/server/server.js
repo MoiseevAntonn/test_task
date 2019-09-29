@@ -2,10 +2,9 @@ const express = require("express");
 const db = require("./utils/DataBaseUtils");
 const bodyParser = require("body-parser");
 const path = require("path");
-const passport = require("passport");
-const fallback = require("express-history-api-fallback");
 const fs = require("fs");
 const {port} = require("../etc/config.json");
+const session = require("express-session");
 
 const app = express();
 
@@ -13,53 +12,39 @@ var sessions = [];
 
 app.use( bodyParser.json() );
 app.use( express.static(path.resolve(__dirname,"../public")) );
+app.use( session({
+  secret : generateSessionKey(),
+  saveUninitialized : false,
+  resave : true
+}) )
 
 
 
 
 app.get("/profile/get",async function(req,res){
-  const cookie = req.header("cookie")
 
-  if (!cookie){
-    res.status(400).send();
-    return;
-  }
-  const key = cookie.split("=")[1];
-
-  if (cookie && key){
-    var userSession = sessions.find(session => session.key === key);
-    if (userSession){
-      try {
-        var user = await  db.getUserById(userSession.id);
-        var links = await db.getLinks(user.id)
-      } catch (e) {
-        res.status(500).send();
-        return ;
-      }
-      res.status(200).send({
-        user,
-        links
-      });
-      return
-    }
+  if (!req.session.userId) {
+    res.status(400).end();
+    return ;
   }
 
-  res.status(400).end();
+  try {
+     var user = await db.getUserById(req.session.userId);
+     var links = await db.getLinks(req.session.userId)
+  } catch (e) {
+     res.status(500).send();
+     return ;
+  }
+
+  res.status(200).send({
+    user,
+    links
+  });
 
 })
 
 app.get("/profile/logout",async function(req,res){
-  const cookie = req.header("cookie")
-  const key = cookie.split("=")[1];
-
-  var userSessionIndex = sessions.findIndex(session => session.key = key);
-
-  if (!userSessionIndex === -1){
-    res.status(200).send();
-    return;
-  };
-
-  sessions.splice(userSessionIndex,1);
+  req.session.destroy();
 
   res.status(200).send();
 });
@@ -102,16 +87,7 @@ app.post("/login",async function(req,res){
     return;
   };
 
-
-  if (sessions.find(session => session.id = user.id) === undefined){
-    var sessionKey = generateSessionKey();
-    sessions.push({
-      id : user.id,
-      key : sessionKey
-    });
-
-    res.setHeader("Set-Cookie",[`key=${sessionKey}`]);
-  };
+  req.session.userId = user.id;
 
   res.status(200).end();
 
@@ -148,18 +124,14 @@ app.get("/profile",async function(req,res){
 });
 
 app.get(/.+/,async function(req,res){
-  const cookie = req.header("cookie")
-  const key = cookie.split("=")[1];
 
-  var userSession = sessions.find(session => session.key = key);
-
-  if (!userSession){
+  if (!req.session.userId) {
     res.status(401).send();
     return;
-  };
+  }
 
   try {
-    var links = await db.getLinks(userSession.id);
+    var links = await db.getLinks(req.session.userId);
   } catch (e) {
     res.status(500).send();
     return;
@@ -182,7 +154,6 @@ app.get(/.+/,async function(req,res){
   res.redirect(linkMap.longlink);
 })
 
-//app.use( fallback( "index.html", {root : path.resolve(__dirname,"../public")} ));
 
 app.listen(port,()=>{
   console.log(`server is runnig on port ${port}`);

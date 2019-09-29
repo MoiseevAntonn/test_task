@@ -54,6 +54,7 @@ class Profile extends React.Component{
     .catch(err => {
       alert("Что то пошло не так")
     })
+
   }
 
 

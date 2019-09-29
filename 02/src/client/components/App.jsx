@@ -30,7 +30,7 @@ class App extends React.Component{
   }
 
   componentDidMount(){
-    if (!document.cookie) return;
+    //if (!document.cookie) return;
 
     axios.get("/profile/get",{
       withCredentials : true
