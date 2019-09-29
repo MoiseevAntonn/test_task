@@ -1,6 +1,7 @@
 import React from "react";
 import {Redirect,Link} from "react-router-dom";
 import axios from 'axios'
+import style from "./LoginForm.css";
 
 class LoginForm extends React.Component{
   constructor(props){
@@ -9,28 +10,27 @@ class LoginForm extends React.Component{
   }
 
   render(){
-    if (this.props.data) {
+    if (this.props.userFlag ) {
         return <Redirect to='/profile' />;
     }
 
     return (
       <div>
-        Log in
-        <form onSubmit={this.onSubmit.bind(this)}>
-            <label>
-              Введите никнейм
-              <input type="text" value={this.state.name} onChange={this.onChangeName.bind(this)}/>
-            </label>
+        <h1> Форма Авторизации </h1>
+        <form onSubmit={this.onSubmit.bind(this)} className="custom_form">
 
-            <label>
-              Введите пароль
-              <input type="password" value={this.state.password} onChange={this.onChangePassword.bind(this)}/>
-            </label>
+            <label> Введите никнейм : </label>
 
-            <button type="submit"> Подтвердить </button>
+            <input type="text" value={this.state.name} onChange={this.onChangeName.bind(this)}/>
+
+            <label> Введите пароль: </label>
+
+            <input type="password" value={this.state.password} onChange={this.onChangePassword.bind(this)}/>
+
+            <button type="submit" className="custom_button"> Подтвердить </button>
+
+            <Link to="/register" className="custom_button"> Зарегистрироваться </Link>
         </form>
-
-        <Link to="/register"> Зарегистрироваться </Link>
       </div>
     )
   }
@@ -57,12 +57,14 @@ class LoginForm extends React.Component{
       password  :this.state.password
     })
     .then(response => {
-      if (response.status === 200) return response.data
+      if (response.status === 200) return axios.get("/profile/get",{withCredentials : true});
     })
+    .then(response => response.data)
     .then(data => {
-      this.props.setUpUserData(data);
+      this.props.setUpData(data);
     })
-    .catch(err => {console.log(err)})
+
+    .catch(err => alert("Неправильная авторизация"))
   }
 
 };

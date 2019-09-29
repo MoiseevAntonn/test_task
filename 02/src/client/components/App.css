@@ -18,3 +18,17 @@
   width: 100%;
   height: 35px;
 }
+
+.custom_form{
+  display: flex;
+  flex-direction: column;
+}
+
+h1 {
+  text-align: center;
+}
+
+.custom_button {
+  align-self: center;
+  margin-top: 20px;
+}

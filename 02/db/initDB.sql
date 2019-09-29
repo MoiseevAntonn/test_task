@@ -1,10 +1,11 @@
-CREATE DATABSE resume;
+CREATE DATABASE resume;
 
 DROP TABLE IF EXSIST users;
 DROP TABLE IF EXSIST links;
 
 
-CREATE USER dbuser;
+CREATE USER dbuser WITH ENCRYPTED PASSWORD 'password';
+grant connect on database resume to dbuser;
 
 CREATE TABLE users (
   id serial primary key,
@@ -17,9 +18,9 @@ grant ALL privileges on table users to dbuser;
 
 
 CREATE TABLE links (
-  id serial primary key,
-  shortLink varchar(15) not null,
-  longLink varchar(50) not null,
+  id int not null,
+  shortLink varchar(50) not null,
+  longLink varchar(100) not null,
   count int
 );
 

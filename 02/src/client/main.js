@@ -1,11 +1,11 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import App from "./components/App.jsx";
-import { BrowserRouter } from "react-router-dom";
+import { BrowserRouter , Route } from "react-router-dom";
 
 ReactDOM.render(
   <BrowserRouter>
-    <App/>
+    <Route path='/' component={App} />
   </BrowserRouter>,
   document.getElementById("mount-point")
 )

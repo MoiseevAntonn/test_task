@@ -9,28 +9,26 @@ class RegForm extends React.Component{
   }
 
   render(){
-    if (this.props.data) {
+    if (this.props.user ) {
         return <Redirect to='/profile' />;
     }
 
     return (
       <div>
-        Регистрация
-        <form onSubmit={this.onSubmit.bind(this)}>
-            <label>
-              Введите никнейм
-              <input type="text" value={this.state.name} onChange={this.onChangeName.bind(this)}/>
-            </label>
+        <h1> Форма Регистрации </h1>
+        <form onSubmit={this.onSubmit.bind(this)} className="custom_form">
+            <label> Введите никнейм :</label>
 
-            <label>
-              Введите пароль
-              <input type="password" value={this.state.password} onChange={this.onChangePassword.bind(this)}/>
-            </label>
+            <input type="text" value={this.state.name} onChange={this.onChangeName.bind(this)}/>
 
-            <button type="submit"> Подтвердить </button>
+            <label>  Введите пароль :</label>
+
+            <input type="password" value={this.state.password} onChange={this.onChangePassword.bind(this)}/>
+
+            <button type="submit" className="custom_button"> Подтвердить </button>
+
+            <Link to="/login" className="custom_button"> To Log in </Link>
         </form>
-
-        <Link to="/login"> To Log in </Link>
       </div>
     )
   }
@@ -55,6 +53,9 @@ class RegForm extends React.Component{
     axios.post("/register",{
       name : this.state.name,
       password  :this.state.password
+    })
+    .catch(()=>{
+      alert("Проблемы с регистрацией");
     })
 
   }
