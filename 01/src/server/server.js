@@ -16,19 +16,19 @@ app.use( express.static(path.resolve(__dirname,"../public")) );
 app.post("/convert",async function(req,res){
   var {fromCurr,toCurr,value} = req.body;
   if (!fromCurr || !toCurr || value === undefined){
-    res.status(400).send();
+    res.status(400).end();
   }
 
   try {
     var conversionInfo = await requests.getConversionInfo(fromCurr,toCurr);
   } catch (e) {
-    res.status(500).send();
+    res.status(500).end();
     return
   }
 
   var conversionValue = conversionInfo["data"][`${fromCurr.value}_${toCurr.value}`]["val"];
   if (!conversionValue){
-    res.status(400).send();
+    res.status(400).end();
     return;
   }
   var result = value * conversionValue;

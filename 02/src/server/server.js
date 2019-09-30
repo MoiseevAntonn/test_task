@@ -32,7 +32,7 @@ app.get("/profile/get",async function(req,res){
      var user = await db.getUserById(req.session.userId);
      var links = await db.getLinks(req.session.userId)
   } catch (e) {
-     res.status(500).send();
+     res.status(500).end();
      return ;
   }
 
@@ -55,7 +55,7 @@ app.post("/register",async function(req,res){
   try {
     await db.createUser(user);
   } catch (e) {
-    res.status(500).send();
+    res.status(500).end();
     return;
   };
 
@@ -66,24 +66,24 @@ app.post("/register",async function(req,res){
 app.post("/login",async function(req,res){
   const {name,password} = req.body;
   if (!name || !password){
-    res.status(400).send();
+    res.status(400).end();
     return;
   };
 
   try {
     var user = await db.getUserByName(name)
   } catch (e) {
-    res.status(500).send();
+    res.status(500).end();
     return ;
   }
 
   if (!user){
-    res.status(400).send("not such user");
+    res.status(400).end("not such user");
     return;
   };
 
   if (password !== user.password){
-    res.status(400).send("wrong password");
+    res.status(400).end("wrong password");
     return;
   };
 
@@ -107,7 +107,7 @@ app.post("/profile/createLink",async function(req,res){
   try {
     await db.createLink(linkMap);
   } catch (e) {
-    res.status(500).send();
+    res.status(500).end();
     return
   }
   res.send(linkMap);
@@ -123,24 +123,23 @@ app.get("/profile",async function(req,res){
   res.sendFile(path.resolve(__dirname,"../public/index.html"));
 });
 
-app.get(/.+/,async function(req,res){
+// app.get("/json/version",async function(req,res){
+//   res.end();
+// });
 
-  if (!req.session.userId) {
-    res.status(401).send();
-    return;
-  }
+app.get("/test",async function(req,res){
 
   try {
-    var links = await db.getLinks(req.session.userId);
+    var links = await db.getLinks(1);
   } catch (e) {
-    res.status(500).send();
+    res.status(500).end();
     return;
   }
 
   //var linkMap = links.find(link => (new RegExp(req.url)).test(link.shortlink))
-  var linkMap = links.find(link => link.shortlink === req.headers.host + req.url);
+  var linkMap = links[0];
   if (!linkMap){
-    res.status(500).send();
+    res.status(500).end();
     return;
   };
 
@@ -152,7 +151,41 @@ app.get(/.+/,async function(req,res){
   }
 
   res.redirect(linkMap.longlink);
+});
+
+app.get(/.+/,async function(req,res){
+
+  if (!req.session.userId) {
+    res.status(401).end();
+    return;
+  }
+
+  try {
+    var link = await db.getLink(req.session.userId,req.headers.host + req.url);
+  } catch (e) {
+    res.status(500).end();
+    return;
+  }
+
+  //var linkMap = links.find(link => (new RegExp(req.url)).test(link.shortlink))
+  //var linkMap = links.find(link => link.shortlink === req.headers.host + req.url);
+  if (!link){
+    res.status(500).end();
+    return;
+  };
+
+  try {
+    await db.incrementLink(link.id,link.shortlink)
+  } catch (e) {
+    res.status(500).end();
+    return;
+  }
+
+  res.redirect(link.longlink);
 })
+
+
+
 
 
 app.listen(port,()=>{

@@ -46,6 +46,15 @@ module.exports.getLinks = async function(id){
   return links;
 };
 
+module.exports.getLink = async function(id,shortLink){
+  var result = await  pool.query("SELECT * FROM links WHERE id = $1 AND shortlink = $2",[id,shortLink]);
+  var link = null;
+  if (result){
+    link = result.rows[0];
+  }
+  return link;
+};
+
 module.exports.incrementLink = async function(id,shortLink){
   await pool.query("UPDATE links SET count = count + 1 WHERE id = $1 AND shortlink = $2",[id,shortLink])
 };
